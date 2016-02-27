@@ -73,8 +73,12 @@ def calculate_host_rules(port, rule_counter, host):
         host_rules.append("acl host_rule_%d_port hdr_reg(host) -i ^%s:%s$" % (
             rule_counter, host.replace(".", "\.").replace("*", ".*"), port))
     elif host:
-        host_rules.append("acl host_rule_%d hdr(host) -i %s" % (rule_counter, host))
-        host_rules.append("acl host_rule_%d_port hdr(host) -i %s:%s" % (rule_counter, host, port))
+        if port == '443':
+            host_rules.append("acl host_rule_%d req_ssl_sni -i %s" % (rule_counter, host))
+            host_rules.append("acl host_rule_%d_port req_ssl_sni -i %s:%s" % (rule_counter, host, port))
+        else:
+            host_rules.append("acl host_rule_%d hdr(host) -i %s" % (rule_counter, host))
+            host_rules.append("acl host_rule_%d_port hdr(host) -i %s:%s" % (rule_counter, host, port))
     return host_rules
 
 
